@@ -1,0 +1,43 @@
+---
+- hosts: localhost
+  become: yes
+  become_method: su
+  
+  tasks:
+    - name: firewalld, habilitando servicios de red
+      firewalld:
+        zone: public
+        service: "{{ item }}"
+        permanent: true
+        immediate: true 
+        state: enabled
+      with_items:
+        - http
+        - https
+        - ntp
+        - dhcp
+        - dns
+        - ssh
+      notify:
+        - reload firewalld
+
+    - name: firewalld, habilitando puertos arbitrarios
+      firewalld:
+        zone: public
+        port: "{{ item }}"
+        permanent: true
+        immediate: true 
+        state: enabled
+      with_items:
+        - "9092/tcp"
+        - "9992/tcp"
+        - "2181/tcp"
+        - "2182/tcp"
+      notify:
+        - reload firewalld
+
+  handlers:
+    - name: reload firewalld
+      service:
+        name: firewalld
+        state: reloaded
