@@ -1,0 +1,104 @@
+---
+- hosts: zisnella-1
+  become: yes
+  become_method: su
+  gather_facts: no
+
+  tasks:
+    - name: Actualizar e Instalar Software Necesario
+      block:
+        - name: enable epel yum repo
+          package:
+            name: epel-release
+            state: latest
+
+        - name: install ansible nmcli module dependencies
+          package:
+            name: "{{ item }}"
+            state: latest
+          with_items:
+            - python-gobject 
+            - NetworkManager-glib
+
+        - name: firewalld debe estar instalado 
+          package:
+            name: "{{ item }}"
+            state: latest
+          with_items:
+            - firewalld
+
+        - name: upgrade all packages
+          package:
+            name: '*'
+            state: latest
+
+        - name: Centos Virtualization Host software
+          package:
+            name: "{{ item }}"
+            state: latest
+          with_items:
+            - "@^Virtualization Host"
+      tags:
+        - done
+ 
+    - name: Configuración de Red y Firewall
+      block:
+        - name: set eno1 IPv4 address
+          nmcli:
+            conn_name: eno1
+            type: ethernet
+            ip4: 192.168.1.90/24
+            gw4: 192.168.1.1
+            dns4:
+              - 8.8.8.8
+              - 8.8.4.4
+            state: present
+
+        - name: firewalld, enabling network services
+          firewalld:
+            zone: public
+            service: "{{ item }}"
+            permanent: true
+            immediate: true 
+            state: enabled
+          with_items:
+            - ssh
+          notify:
+            - reload firewalld
+        
+        - name: firewalld, enabling specific ports
+          firewalld:
+            zone: public
+            port: "{{ item }}"
+            permanent: true
+            immediate: true 
+            state: enabled
+          with_items:
+            - "2200/tcp"
+          notify:
+            - reload firewalld
+      tags:
+        - never
+
+    - name: Start Virtualization Host Services
+      block:
+        - name: start libvirt service
+          service:
+            name: libvirtd
+            state: started
+
+        - name: enabling routing in the host
+          sysctl:
+            name: net.ipv4.ip_forward
+            value: 1
+            sysctl_set: yes
+            state: present
+            reload: yes
+      tags:
+        - done
+ 
+  handlers:
+    - name: reload firewalld
+      service:
+        name: firewalld
+        state: reloaded
