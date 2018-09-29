@@ -5,7 +5,7 @@
   gather_facts: no
 
   tasks:
-    - name: Actualizar e Instalar Software Necesario
+    - name: Update and Install Neede Software
       block:
         - name: enable epel yum repo
           package:
@@ -20,7 +20,7 @@
             - python-gobject 
             - NetworkManager-glib
 
-        - name: firewalld debe estar instalado 
+        - name: firewalld should be installed
           package:
             name: "{{ item }}"
             state: latest
@@ -41,7 +41,7 @@
       tags:
         - done
  
-    - name: Configuración de Red y Firewall
+    - name: Network and Firewall Configuration
       block:
         - name: set eno1 IPv4 address
           nmcli:
