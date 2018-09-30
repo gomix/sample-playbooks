@@ -1,5 +1,5 @@
 ---
-- hosts: myhost
+- hosts: zisnella-1
   become: yes
   become_method: su
   gather_facts: no
@@ -38,8 +38,21 @@
             state: latest
           with_items:
             - "@^Virtualization Host"
+
+        - name: Optional Virtualization Utilities software
+          package:
+            name: "{{ item }}"
+            state: latest
+          with_items:
+            - virt-install
+
+        - name: upgrade all packages
+          package:
+            name: '*'
+            state: latest
+
       tags:
-        - done
+        - do
  
     - name: Network and Firewall Configuration
       block:
