@@ -1,5 +1,5 @@
 ---
-- hosts: zisnella-1
+- hosts: myhost
   become: yes
   become_method: su
   gather_facts: no
