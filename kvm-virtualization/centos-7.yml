@@ -27,17 +27,19 @@
           with_items:
             - firewalld
 
-        - name: upgrade all packages
-          package:
-            name: '*'
-            state: latest
-
         - name: Centos Virtualization Host software
           package:
             name: "{{ item }}"
             state: latest
           with_items:
             - "@^Virtualization Host"
+
+        - name: Centos Remote System Management software
+          package:
+            name: "{{ item }}"
+            state: latest
+          with_items:
+            - "@remote-system-management"
 
         - name: Optional Virtualization Utilities software
           package:
