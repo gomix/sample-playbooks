@@ -1,0 +1,83 @@
+- hosts: myhost
+  become: yes
+  become_method: su
+  gather_facts: no
+
+  vars:
+    vms_images_dir_path: /var/lib/libvirt/images/vms
+    iso_images_dir_path: /var/lib/libvirt/images/iso
+
+  tasks:
+    - name: creating directory for vms images
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: 0755
+      with_items:
+        - "{{ vms_images_dir_path }}"
+        - "{{ iso_images_dir_path }}"
+
+    - name: define Storage Pool for vms
+      virt_pool:
+        name: vms
+        state: present
+        xml: '{{ lookup("template", "pool/vms_dir.xml.j2") }}'
+
+    - name: define Storage Pool for iso
+      virt_pool:
+        name: iso
+        state: present
+        xml: '{{ lookup("template", "pool/iso_dir.xml.j2") }}'
+
+    - name: activate defined Storage Pools
+      virt_pool:
+        name: "{{ item }}"
+        state: active
+      with_items:
+        - vms
+        - iso
+
+    # Por ahora algo simple, las VMs conectadas a un bridge que
+    # integre las nics Ethernet existentes eno1 y eno2
+    - name: bridge ethernet br0
+      nmcli:
+        conn_name: "Bridge br0"
+        ifname: br0
+        type: bridge
+        stp: yes
+        state: present
+
+    - name: ethernet eno1 iface present
+      nmcli:
+        conn_name: "System eno1"
+        ifname: eno1
+        type: ethernet
+        state: present
+
+    - name: ethernet eno2 iface present
+      nmcli:
+        conn_name: "System eno2"
+        ifname: eno2
+        type: ethernet
+        state: present
+
+    # Define a new network
+    - name: define virtual network for vms
+      virt_net:
+        command: define
+        name: main_net
+        xml: '{{ lookup("template", "network/bridge.xml.j2") }}'
+ 
+    - name: activate defined vm network
+      virt_net:
+        name: "{{ item }}"
+        state: active
+      with_items:
+        - main_net
+ 
+    - name: activate defined vm network
+      virt_net:
+        name: "{{ item }}"
+        autostart: yes
+      with_items:
+        - main_net
