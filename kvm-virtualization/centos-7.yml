@@ -47,14 +47,19 @@
             state: latest
           with_items:
             - virt-install
+            - bridge-utils
 
+        - name: Optional Tools
+          package:
+            name: "{{ item }}"
+            state: latest
+          with_items:
+            - git
+ 
         - name: upgrade all packages
           package:
             name: '*'
             state: latest
-
-      tags:
-        - do
  
     - name: Network and Firewall Configuration
       block:
@@ -62,13 +67,27 @@
           nmcli:
             conn_name: eno1
             type: ethernet
-            ip4: 192.168.1.90/24
+            ip4: 192.168.1.11/24
             gw4: 192.168.1.1
             dns4:
               - 8.8.8.8
               - 8.8.4.4
             state: present
 
+        - name: ansible bug fix for static ip
+          replace:
+            path: /etc/sysconfig/network-scripts/ifcfg-eno1
+            regexp: 'BOOTPROTO=dhcp'
+            replace: 'BOOTPROTO=none'
+            backup: yes
+
+        - name: selinux allow ssh to listen on tcp port 2200
+          seport:
+            ports: 2200
+            proto: tcp
+            setype: ssh_port_t
+            state: present
+ 
         - name: firewalld, enabling network services
           firewalld:
             zone: public
@@ -80,7 +99,7 @@
             - ssh
           notify:
             - reload firewalld
-        
+       
         - name: firewalld, enabling specific ports
           firewalld:
             zone: public
@@ -92,8 +111,6 @@
             - "2200/tcp"
           notify:
             - reload firewalld
-      tags:
-        - never
 
     - name: Start Virtualization Host Services
       block:
@@ -109,8 +126,6 @@
             sysctl_set: yes
             state: present
             reload: yes
-      tags:
-        - done
  
   handlers:
     - name: reload firewalld
