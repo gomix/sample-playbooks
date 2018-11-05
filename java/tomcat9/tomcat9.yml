@@ -1,0 +1,113 @@
+---
+- hosts: tomcat9
+  remote_user: ansible
+  become: yes
+  become_method: su
+  become_user: root
+  name: Java Installation
+
+  tasks:
+  - name: Install Java 1.8 for Tomcat 9
+    package:
+      name: "{{ item }}"
+      state: present
+    with_items:
+      - java-1.8.0
+
+  - name: Select Java version
+    alternatives:
+      name: java
+      path: /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.191.b12-0.el7_5.x86_64/jre/bin/java
+
+  - lineinfile:
+      path: /etc/environment
+      line: 'JAVA_HOME="/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.191.b12-0.el7_5.x86_64/jre/"'
+      backup: yes
+  
+  - lineinfile:
+      path: /etc/profile
+      line: 'export JAVA_HOME="/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.191.b12-0.el7_5.x86_64/jre/"'
+      backup: yes
+
+  - lineinfile:
+      path: /etc/profile
+      line: 'export PATH=$JAVA_HOME/bin:$PATH'
+      backup: yes
+
+- hosts: tomcat9
+  remote_user: ansible
+  become: yes
+  become_method: su
+  become_user: root
+  name: Tomcat 9 Installation
+  vars:
+    tomcat_version: 9.0.12
+  
+  tasks:
+  - name: Ensure group "tomcat" exists
+    group:
+      name: tomcat
+      state: present
+  
+  - name: Ensure group "tomcat" exists
+    user:
+      name: tomcat
+      comment: Tomcat User
+      group: tomcat
+      shell: /bin/false
+      home: /opt/tomcat9
+      state: present
+
+  - stat: path=/opt/tomcat9
+    register: tomcat9_path
+
+  - name: Descarga de fuentes binarias Tomcat 9
+    unarchive:
+      src: https://www-eu.apache.org/dist/tomcat/tomcat-9/v9.0.12/bin/apache-tomcat-9.0.12.tar.gz
+      dest: /opt
+      remote_src: yes
+    when: not tomcat9_path.stat.exists
+
+  - stat: path=/opt/apache-tomcat-9.0.12 
+    register: tomcat_untared_path
+
+  - name: Move sources to /opt/tomcat9
+    command: mv /opt/apache-tomcat-9.0.12 /opt/tomcat9
+    when: tomcat_untared_path.stat.exists
+
+  - name: Adjust permissions on /opt/tomcat9
+    file:
+      path: /opt/tomcat9
+      owner: tomcat
+      group: tomcat
+      recurse: yes
+
+  - name: Install Tomcat 9 systemd unit file
+    template:
+      src: tomcat9.service.j2
+      dest: /etc/systemd/system/tomcat9.service
+      mode: 0644
+
+  - name: Enable service tomcat9 and ensure it is not masked
+    systemd:
+      name: tomcat9
+      enabled: yes
+      masked: no
+      daemon_reload: yes
+
+  - name: Configure Tomcat users
+    template:
+      src: tomcat-users.xml.j2
+      dest: /opt/tomcat9/conf/tomcat-users.xml
+      owner: tomcat
+      group: tomcat
+      mode: 0600
+
+  - name: Relax manager web restrictions
+    template:
+      src: manager.xml.j2
+      dest: /opt/tomcat9/conf/Catalina/localhost/manager.xml
+      owner: tomcat
+      group: tomcat
+      mode: 0600
+

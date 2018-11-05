@@ -1,0 +1,6 @@
+all:
+  hosts:
+    tomcat9:
+      ansible_host: 10.199.9.16
+      ansible_connection: local
+
