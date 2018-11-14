@@ -1,0 +1,82 @@
+---
+- name:  Instalador Ansible de Syspass
+  hosts: syspass
+  become: true
+  become_method: sudo
+
+  tasks:
+    - name: Instalamos paqueteria
+      package:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - apache2
+        - mariadb-server
+        - libapache2-mod-php
+        - php
+        - php-curl
+        - php-mysqlnd
+        - php-gd
+        - php-json
+        - php7.0-dom
+        - php-mbstring
+        - php-mbstring
+        - php-xml
+        - php-ldap
+        - python-mysqldb
+
+          #    - name: Creamos directorio
+          #      file: 
+          #        path: /var/www/html/syspass
+          #        state: directory
+          #        mode: 0755
+
+    - name: Extraemos fuentes en el servidor
+      unarchive:
+        src: syspass.tar.gz
+        dest: /var/www/html/
+        creates: /var/www/html/syspass
+
+    - name: Renombramos
+      command: mv /var/www/html/sysPass-2.1.16.18061901 /var/www/html/syspass
+      args:
+        creates: /var/www/html/syspass
+
+    - name: Ajuste de propietarios y permisos
+      file:
+        path: "{{ item }}" 
+        owner: www-data
+        mode: 0750
+      with_items:
+        - /var/www/html/syspass/config
+        - /var/www/html/syspass/backup
+
+    - name: Restart Apache
+      service:
+        name: "apache2"
+        state: restarted
+
+    - name: Enable Apache
+      service:
+        name: "apache2"
+        enabled: yes
+        state: started
+
+    - name: MySql corriendo y habilitada
+      service:
+        name: "mysql"
+        enabled: yes
+        state: started
+
+    - name: Creando base de datos syspassdb
+      mysql_db:
+        name: syspassdb
+        state: present
+
+    - name: MySql creando usuario syspassmgr
+      mysql_user:
+        name: syspassmgr
+        password: 12345
+        priv: '*.*:ALL,GRANT'
+        state: present
+
