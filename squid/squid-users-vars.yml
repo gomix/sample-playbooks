@@ -1,0 +1,191 @@
+users:
+  - name: mbastidas
+    comment: "V-10.801.347,Marlene Bastidas "
+    upassword: "v10801347"
+    groups: "acceso-nivel-1"
+
+  - name: rariana
+    comment: "V-12.483.277,Reynaldo Guenni Ariana"
+    upassword: "v12483277"
+    groups: "acceso-nivel-1,acceso-nivel-2"
+
+  - name: nbayed
+    comment: "V-13.895.295,Nathaly Bayed"
+    upassword: "v13895295"
+    groups: "acceso-nivel-1"
+
+  - name: mcastro
+    comment: "V-13.865.128,Meza Castro Yeismy Milena"
+    upassword: "v13865128"
+
+  - name: yfebles
+    comment: "V-14.689.408,Yennys Febles"
+    upassword: "v14689408"
+
+  - name: bjosen
+    comment: "V-14.890.312,Betancourt Berroteran Jose Ignacio"
+    upassword: "v14890312"
+
+  - name: fyegues
+    comment: "V-14.906.377,Freddy Yegues"
+    upassword: "v14906377"
+ 
+  - name: gobdalia
+    comment: "V-15.681.591,Garcia Salas Obdalia Yarisma"
+    upassword: "v15681591"
+ 
+  - name: charonid
+    comment: "V-15.723.489,Cue Reyes Haronid Andrea"
+    upassword: "v15723489"
+
+  - name: hedilio
+    comment: "V-15.870.960,Herrera Valdez Edilio Jose"
+    upassword: "v15870960"
+
+  - name: cdayros
+    comment: "V-16.813.440,Camejo Dayros"
+    upassword: "v16813440"
+  
+  - name: cleal
+    comment:  "V-16.984.300,Colmenares Leal María Jose"
+    upassword: "v16984300"
+
+  - name: hwilmer
+    comment: "V-17.011.596,Hernandez Gonzalez Wilmer Alfredo"
+    upassword: "v17011596"
+
+  - name: zgabriel
+    comment: "V-17.146.896,Zambrano Sanchez Gabriel Emilio"
+    upassword: "v17146896"
+
+  - name: jismenia
+    comment: "V-17.254.893,Jabana Galindez Ismenia Elieth"
+    upassword: "v17254893"
+
+  - name: avanessa
+    comment: "V-17.268.431,Abreu Siachoque Vanessa Patricia"
+    upassword: "v17268431"
+
+  - name: lchan
+    comment: "V-17.307.689,Lai Hem C. Chan López"
+    upassword: "v17307689"
+
+  - name: gyaleida
+    comment: "V-17.407.409,Gallardo Portuguez Yaleida Coromoto"
+    upassword: "v17407409"
+
+  - name: gjose
+    comment: "V-17.478.764,Guzman Flores Jose Gregorio"
+    upassword: "v17478764"
+
+  - name: sroman
+    comment: "V-17.529.120,Suarez Pacheco Roman Alejandro"
+    upassword: "v17529120"
+
+  - name: dajenny
+    comment: "V-17.775.562,De Almeida Dos Santos Jenny Cristina"
+    upassword: "v17775562"
+
+  - name: cebert
+    comment: "V-17.811.123,Castro Rodriguez Ebert Otniel"
+    upassword: "v17811123"
+
+  - name: myolimar
+    comment: "V-17.980.364,Marcial Camargo Yolimar Elizabeth"
+    upassword: "v17980364"
+  
+  - name: bfernando
+    comment: "V-17.982.427,Bello Hernanadez Fernando Javier"
+    upassword: "v17982427"
+
+  - name: lalbarez
+    comment: "V-18.028.354,Laura Gisela Alvarez MontoyaÇ"
+    upassword: "v18028354"
+
+  - name: vjesus
+    comment: "V-18.039.235,Vivas Bravo Jesus Alberto"
+    upassword: "v18039235"
+
+  - name: celisabeth
+    comment: "#V-18.353.236,Cudemos Lopez Elizabeth"
+    upassword: "v18353236"
+
+  - name: vasuncion
+    comment: "V-18.530.636,Vergara Asunción"
+    upassword: "v18530636"
+
+  - name: pdaniela
+    comment: "V-18.589.184,Perez Escobar Daniela"
+    upassword: "v18589184"
+  
+  - name: zmarcolis
+    comment: "V-18.675.289,Zambrano Zambrano Marcolis Alejandra"
+    upassword: "v18675289"
+
+  - name: ttanaivy
+    comment: "V-18.933.288,Torrealba Tanaivy"
+    upassword: "v18933288"
+
+  - name: ebriceno
+    comment: "V-18.934.877,Erika Briceño"
+    upassword: "v18934877"
+
+  - name: lluzdary
+    comment: "V-18.942.983,Laffont Reyna Luzdary Andreina"
+    upassword: "v18942983"
+
+  - name: dwuillianes
+    comment: "V-18.942.985,Diaz Toro Wuillianis Yerleis"
+    upassword: "v18942985"
+
+  - name: brosemary
+    comment: "V-19.086.829,Betancourt Rios Rosemary Dayana"
+    upassword: "v19086829"
+
+  - name: mnunes
+    comment: "V-19.162.735,Mariana Nunes"
+    upassword: "v19162735"
+  
+  - name: mcavalieri
+    comment: "V-19.378.000,Maria Alejandra Cavalieri"
+    upassword: "v19378000"
+
+  - name: tkatiusks
+    comment: "V-19.378.456,Toro Gil Katiuska Yarimar"
+    upassword: "v19378456"
+
+  - name: msorioska
+    comment: "V-19.692.074,Mena Lafaurie Sorioska Elena"
+    upassword: "v19692074"
+
+  - name: lgil
+    comment: "V-19.716.689,Laura Daniela Gil Rojas"
+    upassword: "v19716689"
+
+  - name: bjosmer
+    comment: "V-19.959.662,Barreto Frontado Josmer Jose"
+    upassword: "v19959662"
+  
+  - name: cjoely
+    comment: "V-20.615.586,Calanche Pacheco Joely Celeste"
+    upassword: "v20615586"
+  
+  - name: gjimenez
+    comment: "V-20.677.658,Gracce Jiménez"
+    upassword: "v20677658"
+
+  - name: reldriz
+    comment: "V-21.014.051,Rodriguez Hernandez Eldri Maria"
+    upassword: "v21014051"
+ 
+  - name: ddaniela
+    comment: "V-23.707.476,Da Silva Ibarra Daniela Yudisay"
+    upassword: "v23707476"
+
+  - name: mlejandra
+    comment: "V-24.177.302,Mujica Alejandra"
+    upassword: "v24177302"
+
+  - name: disabel
+    comment: "E-84.432.011,Defina Bucaram Isabel Maria"
+    upassword: "e84432011"

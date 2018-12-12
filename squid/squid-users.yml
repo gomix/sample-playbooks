@@ -1,0 +1,39 @@
+- hosts: squid-1
+  become: yes
+  become_method: su
+  gather_facts: no
+
+  vars:
+    proxy_user_group_name: "proxy-user"
+  vars_files:
+    - squid-users-vars.yml
+
+  tasks:
+    - name: Add group "proxy-user"
+      group:
+        name: "{{ proxy_user_group_name }}"
+        state: present
+
+    - name: Add group "acceso-nivel-1"
+      group:
+        name: "acceso-nivel-1"
+        state: present
+
+    - name: Add group "acceso-nivel-2"
+      group:
+        name: "acceso-nivel-2"
+        state: present
+
+    - name: Adding proxy-users
+      user:
+        name: "{{ item.name }}"
+        comment: "{{ item.comment }}"
+        groups:  "{{ item.groups | default(proxy_user_group_name) }}"
+        shell: /bin/nologin
+        password: "{{ item.upassword | password_hash('sha512') }}"
+        #update_password: on_create
+        createhome: yes
+        ssh_key_bits: 2048
+        ssh_key_file: .ssh/id_rsa
+        state: present
+      with_items: "{{ users }}"
