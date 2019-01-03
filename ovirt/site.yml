@@ -1,1 +1,6 @@
 ---
+ansible-playbook -i hosts/inventory provision-vms.yml
+ansible-playbook -i hosts/inventory prepare-vms.yml
+ansible-playbook -i hosts/inventory /usr/share/ansible/openshift-ansible/playbooks/prerequisites.yml
+ansible-playbook -i hosts/inventory /usr/share/ansible/openshift-ansible/playbooks/deploy_cluster.yml
+
