@@ -5,4 +5,4 @@ Usefull sample Ansible Playbooks to install OKD on Centos VMs hosted in a oVirt 
 
 Adapt!
 
-If you are here should be able to adapt to your needs.
+If you are here, you should be able to adapt to your needs.
