@@ -1,0 +1,67 @@
+---
+- name: Create OKD VMs en Chicago
+  hosts: localhost
+  vars:
+    ovirt_username: admin@internal
+    ovirt_password: secreto
+    ovirt_api_url: "https://our.ovirt.at.cautiva/ovirt-engine/api"
+    datacenter_name: Default
+    cluster_default: CHICAGO
+    okd_domain: cautiva.cloud
+    delete_vms: true
+    create_vms: true
+    vm_list:
+      - name: okd00
+        mac: "ca:ca:ca:ca:ca:00"
+        ram: 6Gib
+      - name: okd01
+        mac: "ca:ca:ca:ca:ca:01"
+        ram: 6Gib
+      - name: okd02
+        mac: "ca:ca:ca:ca:ca:02"
+        ram: 6Gib
+      - name: okd03
+        mac: "ca:ca:ca:ca:ca:03"
+        ram: 6Gib
+
+  tasks:
+  - name: Obtain SSO token with using username/password credentials
+    ovirt_auth:
+      url: "{{ ovirt_api_url }}"
+      username: "{{ ovirt_username }}"
+      password: "{{ ovirt_password }}"
+
+  - name: Delete VMs
+    ovirt_vm:
+      auth: "{{ ovirt_auth }}"
+      state: absent
+      name: "{{ item.name }}"
+    when: delete_vms 
+    loop: "{{ vm_list }}"
+
+  - name: Create VMs
+    ovirt_vm:
+      auth: "{{ ovirt_auth }}"
+      name: "{{ item.name }}"
+      state: present
+      template: okd-template-no-nic
+      cluster: "{{ cluster_default }}"
+      cpu_sockets: 1
+      cpu_cores: 2
+      cpu_threads: 2
+      memory: "{{ item.ram }}"
+      operating_system: "rhel_7x64" 
+      nics:
+        - name: eth0
+          profile_name: nic1
+          mac_address: "{{ item.mac }}"
+    when: create_vms 
+    loop: "{{ vm_list }}"
+
+  - name: Run VMs
+    ovirt_vm:
+      auth: "{{ ovirt_auth }}"
+      state: running
+      name: "{{ item.name }}"
+    loop: "{{ vm_list }}"
+

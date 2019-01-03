@@ -1,0 +1,87 @@
+---
+- name: Provision NFS servers
+  hosts: nfs
+  vars:
+    oc_admin: "admin"
+    oc_password: "secreto"
+    nfs_server_1: okd00.dev.cautiva.cloud
+
+  tasks:
+    - name: Create mountable dir
+      file: 
+        path: "/pvs" 
+        state: directory 
+        mode: 0755 
+        owner: root 
+        group: root
+    
+    - name: Create mountable dir for PV001
+      file: 
+        path: "/pvs/{{item}}"
+        state: directory 
+        mode: 0777 
+        owner: nfsnobody
+        group: nfsnobody
+      with_items:
+        - "pv0001"
+        - "pv0002"
+        - "pv0003"
+        - "pv0004"
+        - "pv0005"
+        - "pv0006"
+
+    - name: copy exports definitions
+      copy: 
+        src: etc/exports.d/openshift-nfs-pvs.exports
+        dest: /etc/exports.d/openshift-nfs-pvs.exports
+        owner: root 
+        group: root
+
+    - name: restart nfs-server service
+      service:
+        name: nfs-server
+        state: restarted
+
+    - name: copy pv-def 0001
+      template:
+        src: pvs-defs/pv0001-nfs.j2
+        dest: /tmp/pv0001-nfs.yml
+
+    - name: copy pv-def 0002
+      template:
+        src: pvs-defs/pv0002-nfs.j2
+        dest: /tmp/pv0002-nfs.yml
+
+    - name: copy pv-def 0003
+      template:
+        src: pvs-defs/pv0003-nfs.j2
+        dest: /tmp/pv0003-nfs.yml
+
+    - name: copy pv-def 0004
+      template:
+        src: pvs-defs/pv0004-nfs.j2
+        dest: /tmp/pv0004-nfs.yml
+
+    - name: copy pv-def 0005
+      template:
+        src: pvs-defs/pv0005-nfs.j2
+        dest: /tmp/pv0005-nfs.yml
+
+    - name: copy pv-def 0006
+      template:
+        src: pvs-defs/pv0006-nfs.j2
+        dest: /tmp/pv0006-nfs.yml
+
+    - name: oc admin login
+      command: oc login -u "{{ oc_admin }}" -p "{{ oc_password }}" --insecure-skip-tls-verify
+    
+    - name: oc create pvs
+      command: oc create -f "/tmp/{{ item }}-nfs.yml"
+      ignore_errors: yes
+      with_items:
+        - "pv0001"
+        - "pv0002"
+        - "pv0003"
+        - "pv0004"
+        - "pv0005"
+        - "pv0006"

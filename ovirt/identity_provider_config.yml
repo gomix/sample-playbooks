@@ -1,0 +1,23 @@
+---
+- name: Prepare Identity Providers
+  hosts: localhost
+  vars:
+    HTPasswd: true
+
+  tasks:
+    - name: Install HTPasswd deps
+      yum:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - httpd-tools
+        - python-passlib
+      when: HTPasswd 
+
+    - name: Creates htpasswd user db
+      htpasswd:
+        path: /etc/origin/master/htpasswd
+        create: yes
+        name: admin
+        password: 'cautiva'
+      when: HTPasswd 

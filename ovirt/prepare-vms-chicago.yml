@@ -1,0 +1,180 @@
+---
+- name: OKD Prepare VMs in Chicago
+  hosts: all
+  vars:
+  roles:
+
+  tasks:
+    - name: yum keepcache and delta
+      lineinfile:
+        path: /etc/yum.conf
+        state: present
+        line: "{{ item }}"
+      loop:
+        - "#deleteme"
+
+    - name: eth0 IPv4 bootproto static
+      replace:
+        path: /etc/sysconfig/network-scripts/ifcfg-eth0
+        regexp:  'BOOTPROTO=dhcp'
+        replace: 'BOOTPROTO=none'
+
+    - name: eth0 remove comments
+      lineinfile:
+        path: /etc/sysconfig/network-scripts/ifcfg-eth0
+        regexp: '^#'
+        state: absent
+ 
+    - name: eth0 IPv4 static
+      lineinfile:
+        path: /etc/sysconfig/network-scripts/ifcfg-eth0
+        line: "{{ item }}"
+      loop:
+        - 'IPADDR={{ ansible_host }}'
+        - 'NETMASK=255.255.255.0'
+        - 'GATEWAY=10.199.101.1'
+        - 'IPV6INIT=no'
+        - 'NM_CONTROLLED=yes'
+
+    - name: Set hostname
+      hostname:
+        name: "{{ inventory_hostname }}"
+
+    - name: Disable cloud-init
+      service:
+        name: "{{ item }}"
+        state: stopped
+        enabled: no
+      loop:
+        - cloud-config
+        - cloud-final
+        - cloud-init-local
+        - cloud-init
+
+    - name: yum keepcache
+      replace:
+        path: /etc/yum.conf
+        regexp:  'keepcache=0'
+        replace: 'keepcache=1'
+      
+    - name: Wipe Localhost Hosts Table
+      lineinfile:
+        path: /etc/hosts
+        state: absent
+        regexp: '.*okd.*'
+
+    - name: Create Hosts Table
+      lineinfile:
+        path: /etc/hosts
+        state: present
+        line: "{{ item }}"
+      loop:
+        - "10.199.101.100 okd00.cautiva.cloud okd00"
+        - "10.199.101.101 okd01.cautiva.cloud okd01"
+        - "10.199.101.102 okd02.cautiva.cloud okd02"
+        - "10.199.101.103 okd03.cautiva.cloud okd03"
+        - "10.199.101.104 okd04.cautiva.cloud okd04"
+
+    - name: Remote server ansible variables
+      debug:
+        msg: "{{ ansible_env.HOME }}"
+
+    - name: Install SELinux
+      yum:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - policycoreutils 
+        - policycoreutils-python 
+        - selinux-policy 
+        - selinux-policy-targeted 
+        - libselinux-utils 
+        - setroubleshoot-server 
+        - setools 
+        - setools-console 
+        - mcstrans
+
+    - name: Enable SELinux
+      selinux:
+        policy: targeted
+        state: enforcing
+      register: result
+
+    - name : SELinux relabel
+      copy:
+        content: ""
+        dest: /.autorelabel
+        force: no
+      #when: result is failed
+
+    - name: yum update
+      yum: 
+        name: "*"
+        state: latest
+
+    - name: Install pkgs
+      yum:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - epel-release
+        - centos-release-openshift-origin311
+        - NetworkManager
+        - docker
+        - deltarpm
+
+    - name: Install pkgs II
+      yum:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - lsof
+
+    - name: Daemons enabled
+      service:
+        name: "{{ item }}"
+        enabled: True
+      loop:
+        - NetworkManager
+        - docker
+
+    - name: Daemons running
+      service:
+        name: "{{ item }}"
+        state: started
+      loop:
+        - NetworkManager
+        - docker
+
+    - name: eth0 under NM control
+      lineinfile:
+        path: /etc/sysconfig/network-scripts/ifcfg-eth0
+        regex: 'NM_CONTROLLED="no"'
+        line:  'NM_CONTROLLED="yes"'
+        state: present
+
+    - name: eth0 under NM control
+      lineinfile:
+        path: /etc/sysconfig/network-scripts/ifcfg-eth0
+        line:  'NM_CONTROLLED="yes"'
+        state: present
+    
+    - name: eth0 no IPv6 init
+      lineinfile:
+        path: /etc/sysconfig/network-scripts/ifcfg-eth0
+        regex: 'IPV6INIT="yes"'
+        line:  'IPV6INIT="no"'
+
+    - name: eth0 no IPv6 init
+      lineinfile:
+        path: /etc/sysconfig/network-scripts/ifcfg-eth0
+        line:  'IPV6INIT="no"'
+
+- name: Reboot
+  hosts: all
+
+  tasks:
+    - name: Reboot
+      reboot:
+        reboot_timeout: 360
+

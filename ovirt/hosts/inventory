@@ -1,0 +1,68 @@
+okd00.cautiva.cloud ansible_host=...
+okd01.cautiva.cloud ansible_host=...
+okd02.cautiva.cloud ansible_host=...
+okd03.cautiva.cloud ansible_host=...
+okd04.cautiva.cloud ansible_host=...
+
+[masters]
+okd0[0:2].cautiva.cloud containerized=false
+
+[etcd]
+okd0[0:2].cautiva.cloud
+
+[nodes]
+okd00.cautiva.cloud openshift_node_group_name="node-config-master-infra"
+okd01.cautiva.cloud openshift_node_group_name="node-config-master-infra"
+okd02.cautiva.cloud openshift_node_group_name="node-config-master-infra"
+okd03.cautiva.cloud openshift_node_group_name="node-config-compute"
+
+[nfs]
+okd00.cautiva.cloud
+
+[lb]
+okd03.cautiva.cloud
+
+[OSEv3:children]
+masters
+nodes
+etcd
+lb
+nfs
+
+[OSEv3:vars]
+ansible_user=root
+openshift_clock_enabled=true
+os_firewall_use_firewalld=true
+openshift_use_system_containers=false
+openshift_disable_check=memory_availability,disk_availability,docker_storage
+openshift_deployment_type=origin
+openshift_release="3.11"
+osm_cluster_network_cidr=10.128.0.0/14
+openshift_portal_net=172.30.0.0/16
+debug_level=2
+openshift_install_examples=true
+openshift_master_default_subdomain=apps.cautiva.cloud
+
+# Native high availbility cluster method with optional load balancer.
+# If no lb group is defined installer assumes that a load balancer has
+# been preconfigured. For installation the value of
+# openshift_master_cluster_hostname must resolve to the load balancer
+# or to one or all of the masters defined in the inventory if no load
+# balancer is present.
+openshift_master_cluster_method=native
+openshift_master_cluster_hostname=okd03.cautiva.cloud
+openshift_master_cluster_public_hostname=okd.cautiva.cloud
+
+# Identity provider
+openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider'}]
+openshift_master_htpasswd_file=/etc/origin/master/htpasswd 
+openshift_master_identity_providers=[{'name': 'allow_all', 'login': 'true', 'challenge': 'true', 'kind': 'AllowAllPasswordIdentityProvider'}]
+
+# Metrics
+openshift_metrics_install_metrics=true
+openshift_metrics_server_install=true
+
+# Monitoring
+openshift_cluster_monitoring_operator_install=true
+openshift_cluster_monitoring_operator_prometheus_storage_capacity="50Gi"
+openshift_cluster_monitoring_operator_alertmanager_storage_capacity="2Gi"

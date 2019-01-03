@@ -1,0 +1,6 @@
+/pvs/pv0001 *(rw,root_squash,no_wdelay)
+/pvs/pv0002 *(rw,root_squash,no_wdelay)
+/pvs/pv0003 *(rw,root_squash,no_wdelay)
+/pvs/pv0004 *(rw,root_squash,no_wdelay)
+/pvs/pv0005 *(rw,root_squash,no_wdelay)
+/pvs/pv0006 *(rw,root_squash,no_wdelay)
