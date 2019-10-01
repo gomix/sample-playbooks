@@ -1,0 +1,64 @@
+---
+- hosts: all
+
+  # Interesting PlayBook for newcomers 
+  # because the use of Dictionaries
+  # to build loops and traverse them
+
+  tasks:
+    - name: Update all packages
+      yum:
+        name: '*'
+        state: latest
+
+    - name: Provision needed software
+      yum:
+        name: "{{item}}"
+        state: latest
+      loop:
+        - httpd
+        - php
+
+    - name: Enabling Apache Service
+      service:
+        name: httpd
+        enabled: yes
+        state: started
+
+    - name: Add ec2-user to Apache group
+      user:
+        name: ec2-user
+        groups: apache 
+        append: yes
+
+    - name: Change ownership of /var/www
+      file:
+        path: /var/www
+        state: directory
+        recurse: yes
+        owner: ec2-user
+        group: apache 
+
+    - name: Add group write permissions /var/www and sticky
+      file:
+        path: /var/www
+        state: directory
+        mode: '2775'
+
+    # Particular interes here: find and register result
+    - name: Find /var/www/ all subdir
+      find:
+        paths: /var/www
+        recurse: yes
+        file_type: directory
+      register: subdirs
+      tags: wip
+
+    # Build loop based on registered result subdirs 
+    - name: Add group write permissions /var/www/ and sticky in subdirs
+      file:
+        path: "{{ item['path'] }}" 
+        state: directory
+        mode: '2775'
+      loop: "{{ subdirs['files'] }}"
+
