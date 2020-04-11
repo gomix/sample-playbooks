@@ -1,5 +1,5 @@
 ---
-- hosts: myhost
+- hosts: zisnella-1
   become: yes
   become_method: su
   gather_facts: no
@@ -41,13 +41,14 @@
           with_items:
             - "@remote-system-management"
 
-        - name: Optional Virtualization Utilities software
+        - name: Optional Virtualization Tools
           package:
             name: "{{ item }}"
             state: latest
           with_items:
+            - libguestfs-tools
             - virt-install
-            - bridge-utils
+            - libguestfs-bash-completion
 
         - name: Optional Tools
           package:
