@@ -1,0 +1,94 @@
+---
+- name: oVirt VM Provision 
+  hosts: jenkins_server
+  gather_facts: false
+
+  vars:
+    remove_vm_first: true
+    vm_name: "{{ inventory_hostname }}"
+    memory: 8GiB
+    cpu_cores: 2
+    nic_1_mac_address:  "56:6f:34:d2:00:25" 
+    ipv4_address: "10.199.101.243"
+
+  tasks:
+    - name: Provision VMs
+      delegate_to: 127.0.0.1
+      connection: local
+      block:
+      - name: Login
+        ovirt_auth:
+            url: "https://iaas.lab.example.cl/ovirt-engine/api"
+            username: "your_usersname"
+            password: "secret"
+        run_once: true
+      
+      - name: Remove First
+        ovirt_vm:
+          auth: "{{ ovirt_auth }}"
+          name: "{{ vm_name  }}"
+          state: absent
+          wait: yes
+        when: remove_vm_first|bool
+        register: vm_removed
+
+      - debug:
+          msg: "{{ vm_name }} absent"
+        when: vm_removed is success
+
+      - name: Create Server Node
+        ovirt_vm:
+          auth: "{{ ovirt_auth }}"
+          name: "{{ vm_name  }}"
+          state: running
+          wait: yes
+          template: CentOS_8_Generic_Cloud
+          cluster: Default
+          cpu_cores: "{{ cpu_cores }}"
+          memory: "{{ memory }}"
+          nics:
+            - name: eth0
+              profile_name: ovirtmgmt 
+              mac_address: "{{ nic_1_mac_address }}"
+        register: vm_created
+
+      - debug:
+          msg: "{{ vm_name }} present"
+        when: vm_removed is success
+
+    - name: Copy SSH Key
+      block:
+      - name: Touch desired ssh key
+        local_action: 
+          module: ansible.builtin.file
+          state: touch
+          path: /home/gomix/.ssh/id_rsa.pub
+
+      - name: Remove Old SSH Keys
+        local_action: 
+          module: ansible.builtin.command 
+          argv:
+            - /usr/bin/ssh-keygen
+            - -R 
+            - "{{ item }}"
+        loop:
+          - "{{ vm_name }}"
+          - "{{ ipv4_address }}"
+
+      - name: Add New SSH Keys
+        shell: /usr/bin/ssh-keyscan -t ecdsa "{{ item }}" >> /home/gomix/.ssh/known_hosts
+        delegate_to: 127.0.0.1
+        register: cmd
+        loop:
+          - "{{ vm_name }}"
+          - "{{ ipv4_address }}"
+
+      - name: Copy ssh key to remote server
+        local_action: 
+          module: ansible.builtin.command 
+          argv:
+            - /usr/bin/sshpass 
+            - -p 
+            - root_password_from_vm
+            - ssh-copy-id 
+            - root@{{ vm_name }}
