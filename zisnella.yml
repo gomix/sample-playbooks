@@ -1,0 +1,10 @@
+# Hipervisor aprovisionamiento
+- import_playbook: kvm-virtualization/centos-7.yml
+# Hipervisor configuraci√n
+- import_playbook: kvm-virtualization/libvirt-setup.yml
+# Aprovisionamiento de VMs
+- import_playbook: kvm-virtualization/squid-vm.yml
+- import_playbook: kvm-virtualization/openvpn-vm.yml
+
+#kvm-virtualization/squid-proxy-cache.yml
+

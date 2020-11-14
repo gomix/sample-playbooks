@@ -1,0 +1,42 @@
+- hosts: zisnella-1
+  become: yes
+  become_method: su
+  gather_facts: no
+
+  vars:
+    vms_images_dir_path: /var/lib/libvirt/images/vms
+    iso_images_dir_path: /var/lib/libvirt/images/iso
+    vm_hdd0: 10G
+    vm_name: openvpn-2
+    vm_fqdn: openvpn-2.localdomain
+    vm_ram:  2048
+    vm_bridge: br0
+    dvd_iso: "/var/lib/libvirt/images/iso/CentOS-7-x86_64-Everything-1804.iso"
+    vm_ipv4: "192.168.1.7"
+    vm_gwv4: "192.168.1.1"
+    vm_nmv4: "255.255.255.0"
+    vm_nsv4: "8.8.8.8,8.8.4.4"
+
+  tasks:
+    - name: creating vm image file
+      command: "qemu-img create -f qcow2 {{vms_images_dir_path}}/{{vm_name}}.img {{vm_hdd0}}"
+
+    - name: copy kickstart file
+      template:
+        src: kickstart/builder-01.ks.j2
+        dest: /tmp/{{vm_name}}.ks.cfg
+
+    - name: instalacion de vm con virt-install
+      command: virt-install --name="{{vm_name}}" \
+                          --os-type=linux \
+                          --os-variant=centos7.0 \
+                          -w bridge="{{vm_bridge}}" \
+                          --memory={{vm_ram}} \
+                          --nographics \
+                          --disk="{{vms_images_dir_path}}/{{vm_name}}.img" \
+                          --noautoconsole \
+                          --wait=-1 \
+                          --location="{{dvd_iso}}" \
+                          --initrd-inject /tmp/{{vm_name}}.ks.cfg \
+                          --extra-args="ks=file:/{{vm_name}}.ks.cfg device=eth0 bootproto=dhcp console=tty0 console=ttyS0,115200n8 serial" 
+
